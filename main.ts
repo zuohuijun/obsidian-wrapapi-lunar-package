@@ -1,25 +1,23 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import {Lunar} from 'lunar-typescript'
 
-// Remember to rename these classes and interfaces!
+interface WrapapiPluginSettings {
+	WrapapiPluginSetting: string;
+	bShowLunarInStautsbar: boolean;
+}
 
-// interface WrapapiPluginSettings {
-// 	WrapapiPluginSetting: string;
-// }
+const DEFAULT_SETTINGS: WrapapiPluginSettings = {
+	WrapapiPluginSetting: 'default',
+	bShowLunarInStautsbar: true
+}
 
-// const DEFAULT_SETTINGS: WrapapiPluginSettings = {
-// 	WrapapiPluginSetting: 'default'
-// }
-export class SomeToolsApi {
+export class LunarApi {
 	constructor(private plugin: WrapapiPlugin){
 
 	}
-	public example(s:string){
-		return "your input is "+s;
-	}
     
-	public LunarToday(b:boolean){
-		let lunar = Lunar.fromDate(new Date());
+	public LunarToday(b:boolean = false){
+		const lunar = Lunar.fromDate(new Date());
 		if (!b) {
 			return lunar.toString();
 		}else{
@@ -28,19 +26,18 @@ export class SomeToolsApi {
 	}
 
 	public LunarFromDate(date:Date){
-		let lunar = Lunar.fromDate(date);
+		const lunar = Lunar.fromDate(date);
 		return lunar.toString();
 	}
-	
 }
 
 export default class WrapapiPlugin extends Plugin {
-	// settings: WrapapiPluginSettings;
-	public ToolsApi: SomeToolsApi;
+	settings: WrapapiPluginSettings;
+	public lunarApi: LunarApi;
 
 	async onload() {
-		// await this.loadSettings();
-		this.ToolsApi = new SomeToolsApi(this);
+		await this.loadSettings();
+		this.lunarApi = new LunarApi(this);
 
 		// This creates an icon in the left ribbon.
 		// const ribbonIconEl = this.addRibbonIcon('dice', 'Wrapapi Plugin', (evt: MouseEvent) => {
@@ -51,8 +48,10 @@ export default class WrapapiPlugin extends Plugin {
 		// ribbonIconEl.addClass('Wrapapi-plugin-ribbon-class');
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText(this.ToolsApi.LunarToday(false));
+		if (this.settings.bShowLunarInStautsbar){
+			const statusBarItemEl = this.addStatusBarItem();
+			statusBarItemEl.setText(this.lunarApi.LunarToday());
+		}
 
 		// This adds a simple command that can be triggered anywhere
 		// this.addCommand({
@@ -68,7 +67,7 @@ export default class WrapapiPlugin extends Plugin {
 			name: 'Insert Lunar String',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				console.log(editor.getSelection());
-				editor.replaceSelection(this.ToolsApi.LunarToday(true));
+				editor.replaceSelection(this.lunarApi.LunarToday(true));
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
@@ -108,13 +107,13 @@ export default class WrapapiPlugin extends Plugin {
 
 	}
 
-	// async loadSettings() {
-	// 	this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	// }
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
 
-	// async saveSettings() {
-	// 	await this.saveData(this.settings);
-	// }
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
 }
 
 // class SampleModal extends Modal {

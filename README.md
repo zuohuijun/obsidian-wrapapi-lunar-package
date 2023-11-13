@@ -1,4 +1,22 @@
-# Obsidian Sample Plugin
+# 个人常用函数API
+
+为了在Dataview或者Templater等插件js脚本中使用部分三方库和函数，将所用Javascritpt三方库中的部分函数进行了二次封装。
+
+## 调用方法
+
+### 在Obsidian中的dataviewjs调用
+
+```dataviewjs
+const myapi = this.app.plugins.plugins["Wrapapi-plugin"];
+```
+
+## 农历函数
+
+### function LunarToday(b:boolean = false):string
+
+- 当参数为`true`时，返回当日农历信息；
+- 当参数未`false`时，仅返回当日年月日农历信息。
+
 
 This is a sample plugin for Obsidian (https://obsidian.md).
 
